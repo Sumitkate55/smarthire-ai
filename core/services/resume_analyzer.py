@@ -3,6 +3,7 @@ Resume Analyzer - feedback, scoring, GitHub analysis.
 """
 import re
 import requests
+import os
 
 
 def resume_feedback(raw_text: str, skills: list) -> list:
@@ -101,7 +102,10 @@ def github_analysis(username: str) -> dict:
         return {"error": "No username provided."}
     username = username.strip().lstrip("@")
     base = "https://api.github.com"
+    token = os.environ.get("GITHUB_TOKEN", "")
     headers = {"Accept": "application/vnd.github+json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     try:
         profile_resp = requests.get(f"{base}/users/{username}", headers=headers, timeout=8)
         if profile_resp.status_code == 404:
