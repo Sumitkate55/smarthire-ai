@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}My Resumes{% endblock %}
+{% block page_title %}My Resumes{% endblock %}
+
+{% block content %}
+<div style="max-width:900px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-size:20px;font-weight:800;color:var(--white);letter-spacing:-0.5px;margin-bottom:4px">My Resumes</h1>
+      <p style="font-size:13px;color:var(--g400)">All your uploaded resumes and their extracted skills.</p>
+    </div>
+    <a href="{% url 'resumes:upload' %}" class="sh-btn sh-btn-primary">
+      <i class="bi bi-plus-lg"></i> Upload New
+    </a>
+  </div>
+
+  {% if resumes %}
+    <div style="display:flex;flex-direction:column;gap:12px">
+      {% for r in resumes %}
+      <div class="sh-card">
+        <div class="sh-card-body" style="padding:20px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <div style="width:36px;height:36px;background:var(--g800);border:1px solid var(--border-md);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <i class="bi bi-file-earmark-pdf" style="color:var(--g300)"></i>
+                </div>
+                <div>
+                  <div style="font-size:14px;font-weight:700;color:var(--white)">{{ r.label|default:r.filename }}</div>
+                  <div style="font-size:11px;color:var(--g400)">Uploaded {{ r.uploaded_at|slice:":10" }}</div>
+                </div>
+              </div>
+
+              <!-- Skills preview -->
+              {% if r.extracted_skills %}
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+                {% for skill in r.extracted_skills|slice:":12" %}
+                <span class="sh-badge">{{ skill|capfirst }}</span>
+                {% endfor %}
+                {% if r.extracted_skills|length > 12 %}
+                <span class="sh-badge sh-badge-outline">+{{ r.extracted_skills|length|add:"-12" }} more</span>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div style="display:flex;gap:8px;flex-shrink:0;align-items:center">
+              <div style="text-align:right;margin-right:8px">
+                <div style="font-size:20px;font-weight:800;color:var(--white)">{{ r.extracted_skills|length }}</div>
+                <div style="font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:0.05em">Skills</div>
+              </div>
+              <a href="{% url 'scoring:analyze' r.resume_id %}" class="sh-btn sh-btn-primary sh-btn-sm">
+                <i class="bi bi-cpu"></i> Analyze
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="sh-card">
+      <div class="sh-card-body">
+        <div class="sh-empty">
+          <i class="bi bi-file-earmark-plus" style="font-size:36px;color:var(--g600);margin-bottom:14px"></i>
+          <p style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:6px">No resumes yet</p>
+          <p style="font-size:13px;color:var(--g400);margin-bottom:16px">Upload your first resume to start your AI-powered career analysis.</p>
+          <a href="{% url 'resumes:upload' %}" class="sh-btn sh-btn-primary">
+            <i class="bi bi-file-earmark-arrow-up"></i> Upload Resume
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Score History{% endblock %}
+{% block page_title %}Score History{% endblock %}
+
+{% block content %}
+<div style="max-width:900px">
+
+  <div style="margin-bottom:24px">
+    <h1 style="font-size:20px;font-weight:800;color:var(--white);letter-spacing:-0.5px;margin-bottom:4px">Score History</h1>
+    <p style="font-size:13px;color:var(--g400)">All your past resume analyses, most recent first.</p>
+  </div>
+
+  {% if scores %}
+    <div style="display:flex;flex-direction:column;gap:10px">
+      {% for s in scores %}
+      <div class="sh-card">
+        <div class="sh-card-body" style="padding:18px 20px">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+
+            <!-- Score circle -->
+            <div class="sh-score-circle {% if s.match_percentage >= 70 %}ok{% elif s.match_percentage >= 40 %}warn{% else %}bad{% endif %}" style="width:52px;height:52px;font-size:14px;flex-shrink:0">
+              {{ s.match_percentage|floatformat:0 }}%
+            </div>
+
+            <!-- Details -->
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:700;color:var(--white);margin-bottom:3px">{{ s.best_role }}</div>
+              <div style="font-size:11px;color:var(--g400)">Analyzed on {{ s.scored_at|slice:":10" }}</div>
+              {% if s.matched_skills %}
+              <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">
+                {% for skill in s.matched_skills|slice:":8" %}
+                <span class="sh-badge sh-badge-ok">{{ skill }}</span>
+                {% endfor %}
+                {% if s.matched_skills|length > 8 %}
+                <span class="sh-badge">+{{ s.matched_skills|length|add:"-8" }} more</span>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Resume score if present -->
+            {% if s.resume_score %}
+            <div style="text-align:center;padding:0 12px;border-left:1px solid var(--border);flex-shrink:0">
+              <div style="font-size:20px;font-weight:800;color:var(--white)">{{ s.resume_score }}</div>
+              <div style="font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:0.05em">Resume<br>Score</div>
+            </div>
+            {% endif %}
+
+            <!-- Re-analyze button -->
+            <a href="{% url 'scoring:analyze' s.resume_id %}" class="sh-btn sh-btn-sm sh-btn-outline" style="flex-shrink:0">
+              <i class="bi bi-arrow-repeat"></i> Re-analyze
+            </a>
+          </div>
+
+          {% if s.missing_skills %}
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div style="font-size:10px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Missing skills to learn:</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
+              {% for skill in s.missing_skills|slice:":8" %}
+              <span class="sh-badge sh-badge-bad">{{ skill }}</span>
+              {% endfor %}
+              {% if s.missing_skills|length > 8 %}
+              <span class="sh-badge">+{{ s.missing_skills|length|add:"-8" }} more</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="sh-card">
+      <div class="sh-card-body">
+        <div class="sh-empty">
+          <i class="bi bi-bar-chart-line" style="font-size:36px;color:var(--g600);margin-bottom:14px"></i>
+          <p style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:6px">No analyses yet</p>
+          <p style="font-size:13px;color:var(--g400);margin-bottom:16px">Upload a resume to run your first AI analysis.</p>
+          <a href="{% url 'resumes:upload' %}" class="sh-btn sh-btn-primary">
+            <i class="bi bi-file-earmark-arrow-up"></i> Upload Resume
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

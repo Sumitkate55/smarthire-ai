@@ -1,0 +1,122 @@
+[
+  {
+    "id": "backend_developer",
+    "title": "Backend Developer",
+    "category": "Software Engineering",
+    "icon": "🖥️",
+    "description": "Builds server-side logic, APIs, and database integration for web applications.",
+    "required_skills": ["Python", "Django", "REST API", "SQL", "Docker", "Git", "Linux", "PostgreSQL", "Redis", "Microservices"]
+  },
+  {
+    "id": "frontend_developer",
+    "title": "Frontend Developer",
+    "category": "Software Engineering",
+    "icon": "🎨",
+    "description": "Creates user interfaces and interactive web experiences.",
+    "required_skills": ["HTML", "CSS", "JavaScript", "React", "TypeScript", "Bootstrap", "Git", "Webpack", "REST API", "Redux"]
+  },
+  {
+    "id": "fullstack_developer",
+    "title": "Full Stack Developer",
+    "category": "Software Engineering",
+    "icon": "⚡",
+    "description": "Handles both frontend and backend development.",
+    "required_skills": ["JavaScript", "React", "Node.js", "Python", "SQL", "MongoDB", "Docker", "Git", "REST API", "HTML", "CSS"]
+  },
+  {
+    "id": "data_scientist",
+    "title": "Data Scientist",
+    "category": "Data & AI",
+    "icon": "📊",
+    "description": "Analyzes complex data to extract insights and build predictive models.",
+    "required_skills": ["Python", "Machine Learning", "Pandas", "NumPy", "Scikit-learn", "SQL", "Matplotlib", "Deep Learning", "Statistics", "Jupyter"]
+  },
+  {
+    "id": "ml_engineer",
+    "title": "Machine Learning Engineer",
+    "category": "Data & AI",
+    "icon": "🤖",
+    "description": "Builds and deploys machine learning models at scale.",
+    "required_skills": ["Python", "TensorFlow", "PyTorch", "Scikit-learn", "Docker", "MLOps", "SQL", "Deep Learning", "Pandas", "Kubernetes"]
+  },
+  {
+    "id": "data_analyst",
+    "title": "Data Analyst",
+    "category": "Data & AI",
+    "icon": "📈",
+    "description": "Interprets data to help organizations make data-driven decisions.",
+    "required_skills": ["SQL", "Python", "Excel", "Power BI", "Tableau", "Pandas", "Data Analysis", "Statistics", "Matplotlib"]
+  },
+  {
+    "id": "devops_engineer",
+    "title": "DevOps Engineer",
+    "category": "Infrastructure",
+    "icon": "🔧",
+    "description": "Bridges development and operations through automation and CI/CD.",
+    "required_skills": ["Docker", "Kubernetes", "CI/CD", "Linux", "AWS", "Terraform", "Ansible", "Git", "Jenkins", "Python", "Bash"]
+  },
+  {
+    "id": "cloud_engineer",
+    "title": "Cloud Engineer",
+    "category": "Infrastructure",
+    "icon": "☁️",
+    "description": "Designs and manages cloud infrastructure and services.",
+    "required_skills": ["AWS", "Azure", "GCP", "Docker", "Kubernetes", "Terraform", "Linux", "Python", "Networking", "CI/CD"]
+  },
+  {
+    "id": "android_developer",
+    "title": "Android Developer",
+    "category": "Mobile",
+    "icon": "📱",
+    "description": "Builds native Android applications.",
+    "required_skills": ["Java", "Kotlin", "Android", "XML", "REST API", "Git", "SQL", "Android Studio", "Firebase"]
+  },
+  {
+    "id": "ios_developer",
+    "title": "iOS Developer",
+    "category": "Mobile",
+    "icon": "🍎",
+    "description": "Builds native iOS and macOS applications.",
+    "required_skills": ["Swift", "iOS", "Xcode", "REST API", "Git", "SQL", "UIKit", "Firebase", "Objective-C"]
+  },
+  {
+    "id": "cybersecurity_analyst",
+    "title": "Cybersecurity Analyst",
+    "category": "Security",
+    "icon": "🔒",
+    "description": "Protects systems and networks from cyber threats.",
+    "required_skills": ["Networking", "Linux", "Python", "Cybersecurity", "Ethical Hacking", "Firewalls", "SQL", "Penetration Testing", "TCP/IP", "SIEM"]
+  },
+  {
+    "id": "ui_ux_designer",
+    "title": "UI/UX Designer",
+    "category": "Design",
+    "icon": "✏️",
+    "description": "Creates user-centered digital product designs.",
+    "required_skills": ["Figma", "UI Design", "UX Research", "Prototyping", "HTML", "CSS", "Adobe XD", "User Testing", "Wireframing"]
+  },
+  {
+    "id": "database_admin",
+    "title": "Database Administrator",
+    "category": "Data Management",
+    "icon": "🗄️",
+    "description": "Manages, optimizes, and secures database systems.",
+    "required_skills": ["SQL", "MySQL", "PostgreSQL", "MongoDB", "Oracle", "Backup & Recovery", "Performance Tuning", "Linux", "Python"]
+  },
+  {
+    "id": "react_developer",
+    "title": "React Developer",
+    "category": "Software Engineering",
+    "icon": "⚛️",
+    "description": "Specializes in building React-based web applications.",
+    "required_skills": ["React", "JavaScript", "TypeScript", "Redux", "HTML", "CSS", "REST API", "Git", "Node.js", "Jest"]
+  },
+  {
+    "id": "django_developer",
+    "title": "Django Developer",
+    "category": "Software Engineering",
+    "icon": "🦊",
+    "description": "Builds web applications using the Django framework.",
+    "required_skills": ["Python", "Django", "REST API", "PostgreSQL", "HTML", "CSS", "JavaScript", "Docker", "Git", "Redis"]
+  }
+]

@@ -1,0 +1,11 @@
+Django==4.2.13
+pymongo==4.7.2
+dnspython==2.6.1
+PyPDF2==3.0.1
+spacy==3.7.2
+requests==2.31.0
+python-dotenv==1.0.1
+gunicorn==22.0.0
+whitenoise==6.7.0
+Pillow==10.3.0
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl

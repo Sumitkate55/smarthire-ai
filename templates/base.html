@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHire AI — {% block title %}Dashboard{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="sh-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sh-sidebar" id="sidebar">
+    <div class="sh-logo">
+      <div class="sh-logo-mark"><i class="bi bi-lightning-charge-fill"></i></div>
+      <div class="sh-logo-text">Smart<span>Hire</span> <em>AI</em></div>
+    </div>
+
+    <nav class="sh-nav">
+      <div class="sh-nav-section">Menu</div>
+
+      <a href="{% url 'dashboard:home' %}"
+         class="sh-nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+        <span class="sh-nav-icon"><i class="bi bi-grid-fill"></i></span>
+        <span>Dashboard</span>
+      </a>
+
+      <a href="{% url 'resumes:upload' %}"
+         class="sh-nav-link {% if request.resolver_match.url_name == 'upload' %}active{% endif %}">
+        <span class="sh-nav-icon"><i class="bi bi-file-earmark-arrow-up"></i></span>
+        <span>Analyze Resume</span>
+        <span class="sh-nav-badge">AI</span>
+      </a>
+
+      <a href="{% url 'resumes:history' %}"
+         class="sh-nav-link {% if request.resolver_match.namespace == 'resumes' and request.resolver_match.url_name == 'history' %}active{% endif %}">
+        <span class="sh-nav-icon"><i class="bi bi-archive"></i></span>
+        <span>My Resumes</span>
+      </a>
+
+      <a href="{% url 'scoring:history' %}"
+         class="sh-nav-link {% if request.resolver_match.namespace == 'scoring' and request.resolver_match.url_name == 'history' %}active{% endif %}">
+        <span class="sh-nav-icon"><i class="bi bi-bar-chart-line"></i></span>
+        <span>Score History</span>
+      </a>
+
+      <div class="sh-nav-section" style="margin-top:16px">Account</div>
+
+      {% if user.is_authenticated %}
+      <a href="{% url 'users:logout' %}" class="sh-nav-link">
+        <span class="sh-nav-icon"><i class="bi bi-box-arrow-left"></i></span>
+        <span>Sign Out</span>
+      </a>
+      {% else %}
+      <a href="{% url 'users:login' %}" class="sh-nav-link">
+        <span class="sh-nav-icon"><i class="bi bi-box-arrow-in-right"></i></span>
+        <span>Sign In</span>
+      </a>
+      {% endif %}
+    </nav>
+
+    {% if user.is_authenticated %}
+    <div class="sh-user-card">
+      <div class="sh-user-avatar">{{ user.username|slice:":2"|upper }}</div>
+      <div>
+        <div class="sh-user-name">{{ user.get_full_name|default:user.username }}</div>
+        <div class="sh-user-role">Candidate</div>
+      </div>
+    </div>
+    {% endif %}
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="sh-main">
+
+    <header class="sh-topbar">
+      <button class="sh-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="sh-page-title">{% block page_title %}{% endblock %}</div>
+      <div class="sh-topbar-right">
+        <div class="sh-status-dot"></div>
+        <span class="sh-status-text">AI Engine Active</span>
+      </div>
+    </header>
+
+    {% if messages %}
+    <div class="sh-alerts">
+      {% for message in messages %}
+      <div class="sh-alert sh-alert-{{ message.tags }}">
+        <i class="bi bi-{% if 'success' in message.tags %}check-circle{% elif 'error' in message.tags %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+        {{ message }}
+        <button onclick="this.parentElement.remove()" class="sh-alert-close"><i class="bi bi-x"></i></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="sh-content">
+      {% block content %}{% endblock %}
+    </div>
+
+  </div>
+</div>
+
+<div class="sh-overlay" onclick="document.getElementById('sidebar').classList.remove('open')"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

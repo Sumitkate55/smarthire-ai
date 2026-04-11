@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div style="max-width:1160px">
+
+  <!-- Welcome row -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:28px">
+    <div>
+      <p style="font-size:11px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">Welcome back</p>
+      <h1 style="font-size:24px;font-weight:800;color:var(--white);letter-spacing:-0.8px;margin-bottom:4px">
+        {{ user.get_full_name|default:user.username }}
+      </h1>
+      <p style="font-size:13px;color:var(--g400)">Upload a resume to get your AI-powered job match and skill gap report.</p>
+    </div>
+    <a href="{% url 'resumes:upload' %}" class="sh-btn sh-btn-primary">
+      <i class="bi bi-file-earmark-arrow-up"></i> Analyze Resume
+    </a>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="sh-stat-grid">
+    <div class="sh-stat">
+      <div class="sh-stat-icon ic-white"><i class="bi bi-files"></i></div>
+      <div class="sh-stat-val">{{ total_resumes }}</div>
+      <div class="sh-stat-lbl">Resumes Uploaded</div>
+    </div>
+    <div class="sh-stat">
+      <div class="sh-stat-icon ic-grey"><i class="bi bi-cpu"></i></div>
+      <div class="sh-stat-val">{{ total_scores }}</div>
+      <div class="sh-stat-lbl">Analyses Run</div>
+    </div>
+    <div class="sh-stat">
+      <div class="sh-stat-icon ic-ok"><i class="bi bi-graph-up"></i></div>
+      <div class="sh-stat-val">{{ avg_score }}<span style="font-size:14px;font-weight:500;color:var(--g300)">%</span></div>
+      <div class="sh-stat-lbl">Avg Match Score</div>
+    </div>
+    <div class="sh-stat">
+      <div class="sh-stat-icon ic-warn"><i class="bi bi-briefcase"></i></div>
+      <div class="sh-stat-val" style="font-size:15px;letter-spacing:-0.3px">
+        {{ latest_score.best_role|default:"—" }}
+      </div>
+      <div class="sh-stat-lbl">Latest Best Role</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Recent Resumes -->
+    <div class="col-md-6">
+      <div class="sh-card">
+        <div class="sh-card-header">
+          <i class="bi bi-file-earmark-text" style="color:var(--g300);font-size:13px"></i>
+          <span class="sh-card-title">Recent Resumes</span>
+          <a href="{% url 'resumes:history' %}" class="sh-card-link ms-auto">View all →</a>
+        </div>
+        <div class="sh-card-body">
+          {% if resumes %}
+            {% for r in resumes %}
+            <div class="sh-list-row">
+              <div class="sh-list-icon"><i class="bi bi-file-earmark-pdf"></i></div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  {{ r.label|default:r.filename }}
+                </div>
+                <div style="font-size:11px;color:var(--g400)">
+                  {{ r.extracted_skills|length }} skills · {{ r.uploaded_at|slice:":10" }}
+                </div>
+              </div>
+              <a href="{% url 'scoring:analyze' r.resume_id %}" class="sh-badge sh-badge-outline">Analyze</a>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="sh-empty">
+              <i class="bi bi-file-earmark-plus" style="font-size:28px;color:var(--g600);margin-bottom:10px"></i>
+              <p>No resumes yet.</p>
+              <a href="{% url 'resumes:upload' %}" class="sh-btn sh-btn-sm sh-btn-primary" style="margin-top:8px">Upload First Resume</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Scores -->
+    <div class="col-md-6">
+      <div class="sh-card">
+        <div class="sh-card-header">
+          <i class="bi bi-bar-chart" style="color:var(--g300);font-size:13px"></i>
+          <span class="sh-card-title">Recent Analyses</span>
+          <a href="{% url 'scoring:history' %}" class="sh-card-link ms-auto">View all →</a>
+        </div>
+        <div class="sh-card-body">
+          {% if scores %}
+            {% for s in scores %}
+            <div class="sh-list-row">
+              <div class="sh-score-circle {% if s.match_percentage >= 70 %}ok{% elif s.match_percentage >= 40 %}warn{% else %}bad{% endif %}">
+                {{ s.match_percentage|floatformat:0 }}%
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;color:var(--white)">{{ s.best_role }}</div>
+                <div style="font-size:11px;color:var(--g400)">{{ s.scored_at|slice:":10" }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="sh-empty">
+              <i class="bi bi-bar-chart-line" style="font-size:28px;color:var(--g600);margin-bottom:10px"></i>
+              <p>No analyses yet. Upload a resume to start.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick tips -->
+  <div class="sh-card" style="margin-top:16px">
+    <div class="sh-card-header">
+      <i class="bi bi-lightbulb" style="color:var(--g300);font-size:13px"></i>
+      <span class="sh-card-title">How SmartHire AI Works</span>
+    </div>
+    <div class="sh-card-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px">
+        {% for step in "1234" %}{% endfor %}
+        <div style="text-align:center;padding:16px">
+          <div style="font-size:28px;margin-bottom:10px">📄</div>
+          <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:6px">Upload PDF</div>
+          <div style="font-size:12px;color:var(--g400)">Drop your resume in PDF format</div>
+        </div>
+        <div style="text-align:center;padding:16px">
+          <div style="font-size:28px;margin-bottom:10px">🧠</div>
+          <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:6px">AI Extraction</div>
+          <div style="font-size:12px;color:var(--g400)">NLP identifies 100+ skills automatically</div>
+        </div>
+        <div style="text-align:center;padding:16px">
+          <div style="font-size:28px;margin-bottom:10px">🎯</div>
+          <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:6px">Role Matching</div>
+          <div style="font-size:12px;color:var(--g400)">Scored against 15+ job role profiles</div>
+        </div>
+        <div style="text-align:center;padding:16px">
+          <div style="font-size:28px;margin-bottom:10px">📊</div>
+          <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:6px">Full Report</div>
+          <div style="font-size:12px;color:var(--g400)">Gaps, charts, and improvement plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

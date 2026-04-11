@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHire AI — Access Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #000; --g950: #0a0a0a; --g900: #111; --g800: #1a1a1a;
+      --g700: #262626; --g600: #333; --g400: #666; --g300: #888;
+      --g200: #aaa; --g100: #ccc; --white: #fff;
+      --ok: #22c55e; --bad: #ef4444; --warn: #f59e0b;
+      --border: rgba(255,255,255,0.07); --border-md: rgba(255,255,255,0.12);
+    }
+    html { font-size: 15px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--g950);
+      color: var(--g100);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* LEFT PANEL */
+    .auth-left {
+      background: var(--g900);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+    }
+    .auth-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 16px; font-weight: 700; color: var(--white);
+    }
+    .auth-logo-mark {
+      width: 32px; height: 32px; background: var(--white);
+      border-radius: 6px; display: flex; align-items: center;
+      justify-content: center; font-size: 16px; color: var(--black);
+    }
+    .auth-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .auth-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--g400);
+      text-transform: uppercase; letter-spacing: 0.2em;
+      margin-bottom: 20px;
+    }
+    .auth-hero h1 {
+      font-size: clamp(36px, 4vw, 56px);
+      font-weight: 800; letter-spacing: -1.5px;
+      line-height: 1.05; color: var(--white);
+      margin-bottom: 20px;
+    }
+    .auth-hero h1 span { color: var(--g400); font-weight: 300; }
+    .auth-hero p { font-size: 14px; color: var(--g400); line-height: 1.7; max-width: 420px; }
+    .auth-stats { display: flex; gap: 32px; margin-top: 40px; }
+    .auth-stat-val { font-size: 28px; font-weight: 800; color: var(--white); letter-spacing: -1px; }
+    .auth-stat-lbl { font-size: 11px; color: var(--g400); margin-top: 2px; }
+    .auth-footer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--g400);
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+
+    /* RIGHT PANEL */
+    .auth-right {
+      display: flex; align-items: center; justify-content: center;
+      padding: 48px 40px;
+      overflow-y: auto;
+    }
+    .auth-box { width: 100%; max-width: 380px; }
+    .auth-box-title { font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 6px; letter-spacing: -0.5px; }
+    .auth-box-sub { font-size: 13px; color: var(--g400); margin-bottom: 28px; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+    .tab-btn {
+      background: none; border: none; color: var(--g400);
+      padding: 10px 20px 10px 0; font-size: 14px; font-weight: 500;
+      cursor: pointer; position: relative; transition: color 0.2s;
+      margin-right: 8px;
+    }
+    .tab-btn.active { color: var(--white); }
+    .tab-btn.active::after {
+      content: ''; position: absolute; bottom: -1px; left: 0;
+      width: 100%; height: 2px; background: var(--white);
+    }
+
+    /* FORM */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--g300); text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 6px;
+    }
+    .sh-input {
+      width: 100%; background: var(--g800);
+      border: 1px solid var(--border-md);
+      color: var(--white); padding: 10px 14px;
+      border-radius: 6px; font-family: inherit; font-size: 14px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .sh-input:focus { border-color: rgba(255,255,255,0.3); }
+    .sh-input::placeholder { color: var(--g400); }
+    .field-error { font-size: 12px; color: #ff6b6b; margin-top: 5px; }
+
+    .pw-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; color: var(--g400);
+      font-size: 14px; cursor: pointer;
+    }
+
+    .btn-submit {
+      width: 100%; background: var(--white); color: var(--black);
+      border: none; padding: 12px; border-radius: 6px;
+      font-weight: 700; font-size: 14px; cursor: pointer;
+      transition: opacity 0.2s; margin-top: 6px;
+    }
+    .btn-submit:hover { opacity: 0.88; }
+
+    /* ALERTS */
+    .alert {
+      padding: 10px 14px; border-radius: 6px;
+      font-size: 13px; margin-bottom: 16px;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .alert-error { background: rgba(239,68,68,0.1); color: #ff6b6b; border: 1px solid rgba(239,68,68,0.2); }
+    .alert-success { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+    .alert-info { background: rgba(255,255,255,0.05); color: var(--g200); border: 1px solid var(--border-md); }
+
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+    .switch-link { text-align: center; font-size: 13px; color: var(--g400); }
+    .switch-link a { color: var(--white); font-weight: 600; }
+
+    @media (max-width: 820px) {
+      body { grid-template-columns: 1fr; }
+      .auth-left { display: none; }
+      .auth-right { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT: branding panel -->
+<div class="auth-left">
+  <div class="auth-logo">
+    <div class="auth-logo-mark"><i class="bi bi-lightning-charge-fill" style="font-size:15px"></i></div>
+    SmartHire AI
+  </div>
+  <div class="auth-hero">
+    <div class="auth-tag">AI-Powered Resume Intelligence</div>
+    <h1>Land the job <span>you deserve.</span></h1>
+    <p>Upload your resume and get an instant AI-powered match score across 15+ job roles, skill gap analysis, and a personalized improvement roadmap.</p>
+    <div class="auth-stats">
+      <div>
+        <div class="auth-stat-val">15+</div>
+        <div class="auth-stat-lbl">Job Roles</div>
+      </div>
+      <div>
+        <div class="auth-stat-val">100+</div>
+        <div class="auth-stat-lbl">Skills Tracked</div>
+      </div>
+      <div>
+        <div class="auth-stat-val">AI</div>
+        <div class="auth-stat-lbl">Powered Analysis</div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-footer">BCA Final Project · PCET Pimpri Chinchwad University · 2026</div>
+</div>
+
+<!-- RIGHT: auth forms -->
+<div class="auth-right">
+  <div class="auth-box">
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          <i class="bi bi-{% if 'success' in message.tags %}check-circle{% elif 'error' in message.tags %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn {% if active_tab != 'register' %}active{% endif %}"
+              onclick="showTab('login', this)" id="tab-login">Sign In</button>
+      <button class="tab-btn {% if active_tab == 'register' %}active{% endif %}"
+              onclick="showTab('register', this)" id="tab-register">Create Account</button>
+    </div>
+
+    <!-- ═══ LOGIN FORM ═══ -->
+    <div id="panel-login" {% if active_tab == 'register' %}style="display:none"{% endif %}>
+      <div class="auth-box-title">Welcome back</div>
+      <div class="auth-box-sub">Sign in to your SmartHire account</div>
+
+      {% if active_tab != 'register' and login_form.non_field_errors %}
+        <div class="alert alert-error">
+          <i class="bi bi-exclamation-circle"></i>
+          {{ login_form.non_field_errors|join:", " }}
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'users:login' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="sh-input"
+                 placeholder="your_username"
+                 value="{{ login_form.username.value|default:'' }}" required>
+          {% if login_form.username.errors %}
+            <div class="field-error">{{ login_form.username.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="pw-wrap">
+            <input type="password" name="password" id="pw-login" class="sh-input"
+                   placeholder="••••••••" required>
+            <button type="button" class="pw-toggle" onclick="togglePw('pw-login')">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          {% if login_form.password.errors %}
+            <div class="field-error">{{ login_form.password.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn-submit">Sign In →</button>
+      </form>
+
+      <div class="divider"></div>
+      <div class="switch-link">
+        Don't have an account?
+        <a href="#" onclick="showTab('register', document.getElementById('tab-register'))">Create one free</a>
+      </div>
+    </div>
+
+    <!-- ═══ REGISTER FORM ═══ -->
+    <div id="panel-register" {% if active_tab != 'register' %}style="display:none"{% endif %}>
+      <div class="auth-box-title">Create account</div>
+      <div class="auth-box-sub">Start your AI-powered career journey</div>
+
+      {% if active_tab == 'register' and register_form.non_field_errors %}
+        <div class="alert alert-error">
+          <i class="bi bi-exclamation-circle"></i>
+          {{ register_form.non_field_errors|join:", " }}
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'users:register' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="sh-input"
+                 placeholder="Sumit Kate"
+                 value="{{ register_form.full_name.value|default:'' }}" required>
+          {% if register_form.full_name.errors %}
+            <div class="field-error">{{ register_form.full_name.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="sh-input"
+                 placeholder="sumit_dev"
+                 value="{{ register_form.username.value|default:'' }}" required>
+          {% if register_form.username.errors %}
+            <div class="field-error">{{ register_form.username.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="sh-input"
+                 placeholder="you@email.com"
+                 value="{{ register_form.email.value|default:'' }}" required>
+          {% if register_form.email.errors %}
+            <div class="field-error">{{ register_form.email.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="pw-wrap">
+            <input type="password" name="password1" id="pw-reg1" class="sh-input"
+                   placeholder="Min 8 characters" required>
+            <button type="button" class="pw-toggle" onclick="togglePw('pw-reg1')">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          {% if register_form.password1.errors %}
+            <div class="field-error">{{ register_form.password1.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="pw-wrap">
+            <input type="password" name="password2" id="pw-reg2" class="sh-input"
+                   placeholder="Repeat password" required>
+            <button type="button" class="pw-toggle" onclick="togglePw('pw-reg2')">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          {% if register_form.password2.errors %}
+            <div class="field-error">{{ register_form.password2.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn-submit">Create Account →</button>
+      </form>
+
+      <div class="divider"></div>
+      <div class="switch-link">
+        Already have an account?
+        <a href="#" onclick="showTab('login', document.getElementById('tab-login'))">Sign in</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script>
+  function showTab(name, btn) {
+    document.getElementById('panel-login').style.display = name === 'login' ? 'block' : 'none';
+    document.getElementById('panel-register').style.display = name === 'register' ? 'block' : 'none';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  function togglePw(id) {
+    const el = document.getElementById(id);
+    const icon = el.nextElementSibling.querySelector('i');
+    if (el.type === 'password') {
+      el.type = 'text';
+      icon.className = 'bi bi-eye-slash';
+    } else {
+      el.type = 'password';
+      icon.className = 'bi bi-eye';
+    }
+  }
+</script>
+</body>
+</html>

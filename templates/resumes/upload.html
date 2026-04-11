@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Analyze Resume{% endblock %}
+{% block page_title %}Analyze Resume{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;margin:0 auto">
+
+  <div style="margin-bottom:24px">
+    <h1 style="font-size:20px;font-weight:800;color:var(--white);letter-spacing:-0.5px;margin-bottom:5px">
+      Resume Analysis
+    </h1>
+    <p style="font-size:13px;color:var(--g400)">
+      Upload your PDF resume. Our AI extracts skills, matches job roles, and identifies your skill gaps.
+    </p>
+  </div>
+
+  <div class="sh-card">
+    <div class="sh-card-header">
+      <i class="bi bi-file-earmark-pdf" style="color:var(--g300);font-size:13px"></i>
+      <span class="sh-card-title">Upload Resume</span>
+    </div>
+    <div class="sh-card-body">
+
+      {% if form.errors %}
+      <div class="sh-alert sh-alert-error" style="margin-bottom:16px">
+        <i class="bi bi-exclamation-circle"></i> Please fix the errors below and try again.
+      </div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data" id="uploadForm">
+        {% csrf_token %}
+
+        <div class="sh-upload-zone" id="dropZone" onclick="document.getElementById('id_resume').click()">
+          <i class="bi bi-cloud-arrow-up" style="font-size:36px;color:var(--g600);margin-bottom:12px"></i>
+          <p style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:4px">
+            Click to upload or drag & drop
+          </p>
+          <p style="font-size:12px;color:var(--g400)">PDF files only · Max 10 MB</p>
+          <p id="fileName" style="font-size:12px;color:var(--ok);margin-top:8px;display:none"></p>
+        </div>
+
+        <!-- Hidden file input from Django form -->
+        <div style="display:none">
+          {{ form.resume }}
+        </div>
+
+        {% if form.resume.errors %}
+          <div class="sh-field-error">{{ form.resume.errors|join:", " }}</div>
+        {% endif %}
+
+        <div class="sh-form-group" style="margin-top:16px">
+          <label class="sh-label">Resume Label <span style="color:var(--g400)">(optional)</span></label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <div class="sh-field-error">{{ form.name.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="sh-btn sh-btn-primary w-100" style="justify-content:center;margin-top:8px" id="submitBtn">
+          <i class="bi bi-cpu"></i> Analyze with AI
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Info cards -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+    <div class="sh-card">
+      <div class="sh-card-body" style="padding:16px">
+        <div style="font-size:18px;margin-bottom:8px">⚡</div>
+        <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px">Instant Results</div>
+        <div style="font-size:12px;color:var(--g400)">Full analysis in seconds using NLP + skill matching</div>
+      </div>
+    </div>
+    <div class="sh-card">
+      <div class="sh-card-body" style="padding:16px">
+        <div style="font-size:18px;margin-bottom:8px">🔒</div>
+        <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px">Private & Secure</div>
+        <div style="font-size:12px;color:var(--g400)">Your resume data is tied only to your account</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('id_resume');
+  const fileName = document.getElementById('fileName');
+  const submitBtn = document.getElementById('submitBtn');
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      fileName.textContent = '✓ ' + fileInput.files[0].name;
+      fileName.style.display = 'block';
+    }
+  });
+
+  // Drag and drop
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'rgba(255,255,255,0.4)';
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = '';
+  });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = '';
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const dt = new DataTransfer();
+      dt.items.add(files[0]);
+      fileInput.files = dt.files;
+      fileName.textContent = '✓ ' + files[0].name;
+      fileName.style.display = 'block';
+    }
+  });
+
+  // Loading state on submit
+  document.getElementById('uploadForm').addEventListener('submit', () => {
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Analyzing...';
+    submitBtn.disabled = true;
+  });
+</script>
+{% endblock %}
