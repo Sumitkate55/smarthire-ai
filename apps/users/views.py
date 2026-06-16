@@ -39,7 +39,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            next_url = request.GET.get('next', '/dashboard/')
+            next_url = request.POST.get('next') or request.GET.get('next') or '/dashboard/'
             return redirect(next_url)
         else:
             return render(request, 'users/auth.html', {

@@ -50,7 +50,7 @@
                 <div style="font-size:20px;font-weight:800;color:var(--white)">{{ r.extracted_skills|length }}</div>
                 <div style="font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:0.05em">Skills</div>
               </div>
-              <a href="{% url 'scoring:analyze' r.resume_id %}" class="sh-btn sh-btn-primary sh-btn-sm">
+              <a href="{% url 'scoring:analyze' r.resume_id %}?save=1" class="sh-btn sh-btn-primary sh-btn-sm">
                 <i class="bi bi-cpu"></i> Analyze
               </a>
             </div>

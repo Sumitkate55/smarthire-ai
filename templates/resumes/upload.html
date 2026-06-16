@@ -122,7 +122,9 @@
   // Loading state on submit
   document.getElementById('uploadForm').addEventListener('submit', () => {
     submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Analyzing...';
-    submitBtn.disabled = true;
+    setTimeout(() => {
+      submitBtn.disabled = true;
+    }, 0);
   });
 </script>
 {% endblock %}

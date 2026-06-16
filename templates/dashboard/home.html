@@ -67,7 +67,7 @@
                   {{ r.extracted_skills|length }} skills · {{ r.uploaded_at|slice:":10" }}
                 </div>
               </div>
-              <a href="{% url 'scoring:analyze' r.resume_id %}" class="sh-badge sh-badge-outline">Analyze</a>
+              <a href="{% url 'scoring:analyze' r.resume_id %}?save=1" class="sh-badge sh-badge-outline">Analyze</a>
             </div>
             {% endfor %}
           {% else %}

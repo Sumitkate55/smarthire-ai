@@ -1,10 +1,12 @@
 import os
 import uuid
-from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.text import get_valid_filename
 from .forms import ResumeUploadForm
 from core.services.mongodb import resumes_col
 from core.services.resume_parser import parse_pdf
@@ -23,7 +25,8 @@ def upload_resume(request):
             return render(request, 'resumes/upload.html', {'form': form})
 
         # Save file safely
-        filename = f"{uuid.uuid4().hex}_{uploaded_file.name}"
+        safe_name = get_valid_filename(uploaded_file.name)
+        filename = f"{uuid.uuid4().hex}_{safe_name}"
         save_path = os.path.join(settings.MEDIA_ROOT, filename)
         os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
 
@@ -40,6 +43,8 @@ def upload_resume(request):
                 return render(request, 'resumes/upload.html', {'form': form})
             skills = extract_skills(text)
         except Exception as e:
+            if os.path.exists(save_path):
+                os.remove(save_path)
             messages.error(request, f"Could not parse resume: {e}")
             return render(request, 'resumes/upload.html', {'form': form})
 
@@ -55,12 +60,13 @@ def upload_resume(request):
             "filename": filename,
             "raw_text": text,
             "extracted_skills": skills,
-            "uploaded_at": datetime.utcnow().isoformat(),
+            "uploaded_at": timezone.now().isoformat(),
         }
         resumes_col().insert_one(doc)
 
         messages.success(request, f"Resume parsed! Found {len(skills)} skills.")
-        return redirect('scoring:analyze', resume_id=resume_id)
+        analyze_url = reverse('scoring:analyze', kwargs={'resume_id': resume_id})
+        return redirect(f"{analyze_url}?save=1")
 
     return render(request, 'resumes/upload.html', {'form': form})
 

@@ -47,7 +47,7 @@
             {% endif %}
 
             <!-- Re-analyze button -->
-            <a href="{% url 'scoring:analyze' s.resume_id %}" class="sh-btn sh-btn-sm sh-btn-outline" style="flex-shrink:0">
+            <a href="{% url 'scoring:analyze' s.resume_id %}?save=1" class="sh-btn sh-btn-sm sh-btn-outline" style="flex-shrink:0">
               <i class="bi bi-arrow-repeat"></i> Re-analyze
             </a>
           </div>

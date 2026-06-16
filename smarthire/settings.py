@@ -1,14 +1,30 @@
+import importlib.util
 import os
+import sys
 from pathlib import Path
-from dotenv import load_dotenv
+import dj_database_url
 
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover - optional in local environments
+    load_dotenv = None
+
+if load_dotenv is not None:
+    load_dotenv()
+
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-production')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get('ALLOWED_HOSTS', '*').split(',')
+    if host.strip()
+]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -25,7 +41,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -33,6 +48,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if importlib.util.find_spec('whitenoise') is not None:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'smarthire.urls'
 
@@ -54,12 +72,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'smarthire.wsgi.application'
 
-# SQLite for Django auth/sessions only
+# Database configuration: support PostgreSQL (via DATABASE_URL) with SQLite fallback
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        ssl_require=False if os.environ.get('DATABASE_URL', '').startswith('http') else (not DEBUG if os.environ.get('DATABASE_URL') else False)
+    )
 }
 
 # MongoDB Atlas - optional; app works without it (data stored in memory/SQLite fallback)
@@ -80,7 +99,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if importlib.util.find_spec('whitenoise') is not None:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/uploads/'
 MEDIA_ROOT = BASE_DIR / 'uploads'
@@ -96,11 +116,22 @@ JSEARCH_API_KEY = os.environ.get('JSEARCH_API_KEY', '')
 ADZUNA_APP_ID = os.environ.get('ADZUNA_APP_ID', '')
 ADZUNA_APP_KEY = os.environ.get('ADZUNA_APP_KEY', '')
 
-CSRF_TRUSTED_ORIGINS = [
+default_csrf_trusted_origins = [
     'https://smarthire-bxte.onrender.com',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
+render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if render_hostname:
+    default_csrf_trusted_origins.append(f'https://{render_hostname}')
+
+extra_csrf_trusted_origins = [
+    origin.strip()
+    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
+]
+CSRF_TRUSTED_ORIGINS = sorted(set(default_csrf_trusted_origins + extra_csrf_trusted_origins))
 
 SESSION_COOKIE_AGE = 86400  # 1 day
 SESSION_SAVE_EVERY_REQUEST = False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

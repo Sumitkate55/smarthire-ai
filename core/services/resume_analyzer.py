@@ -100,7 +100,21 @@ def resume_score(raw_text: str, skills: list) -> dict:
 def github_analysis(username: str) -> dict:
     if not username or not username.strip():
         return {"error": "No username provided."}
-    username = username.strip().lstrip("@")
+    
+    # Robustly parse username (handles full URLs, trailing slashes, @ mentions, etc.)
+    username = username.strip()
+    if "github.com" in username:
+        parts = username.split("github.com/")
+        if len(parts) > 1:
+            username = parts[1]
+    # Strip any query parameters or hash
+    username = username.split("?")[0].split("#")[0]
+    # Strip trailing/leading slashes and @ symbols
+    username = username.strip("/").lstrip("@")
+    
+    if not username:
+        return {"error": "Invalid GitHub username or URL."}
+
     base = "https://api.github.com"
     token = os.environ.get("GITHUB_TOKEN", "")
     headers = {"Accept": "application/vnd.github+json"}
@@ -110,6 +124,12 @@ def github_analysis(username: str) -> dict:
         profile_resp = requests.get(f"{base}/users/{username}", headers=headers, timeout=8)
         if profile_resp.status_code == 404:
             return {"error": f"GitHub user '{username}' not found."}
+        if profile_resp.status_code == 403:
+            # Check for rate limit
+            rate_limit_remaining = profile_resp.headers.get("X-RateLimit-Remaining")
+            if rate_limit_remaining == "0":
+                return {"error": "GitHub API rate limit exceeded. Please try again later or configure GITHUB_TOKEN."}
+            return {"error": "GitHub API access forbidden (rate limited or invalid token)."}
         if profile_resp.status_code != 200:
             return {"error": "GitHub API unavailable. Try again later."}
         profile = profile_resp.json()

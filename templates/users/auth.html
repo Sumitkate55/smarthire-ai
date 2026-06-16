@@ -212,8 +212,11 @@
         </div>
       {% endif %}
 
-      <form method="POST" action="{% url 'users:login' %}">
+      <form method="POST" action="{% url 'users:login' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}">
         {% csrf_token %}
+        {% if request.GET.next %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
 
         <div class="form-group">
           <label class="form-label">Username</label>

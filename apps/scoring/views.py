@@ -1,9 +1,10 @@
 import uuid
 import json
-from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
+from django.urls import reverse
+from django.utils import timezone
 from core.services.mongodb import resumes_col, scores_col
 from core.services.role_matcher import get_top_matches, generate_ai_suggestion
 from core.services.skill_extractor import SKILL_DICTIONARY
@@ -12,6 +13,8 @@ from core.services.resume_analyzer import resume_feedback, resume_score, github_
 
 @login_required
 def analyze(request, resume_id):
+    should_save = request.GET.get("save") == "1"
+
     # FIXED: enforce ownership — user can only analyze their own resume
     resume = resumes_col().find_one(
         {"resume_id": resume_id, "user_id": request.user.id},
@@ -36,6 +39,31 @@ def analyze(request, resume_id):
     r_feedback = resume_feedback(raw_text, candidate_skills)
     r_score = resume_score(raw_text, candidate_skills)
 
+    if should_save:
+        score_doc = {
+            "score_id": str(uuid.uuid4()),
+            "user_id": request.user.id,
+            "resume_id": resume_id,
+            "best_role": best_role["title"],
+            "match_percentage": best_role["match_percentage"],
+            "matched_skills": best_role["matched_skills"],
+            "missing_skills": best_role["missing_skills"],
+            "top_roles": [
+                {
+                    "title": r["title"],
+                    "match_percentage": r["match_percentage"],
+                    "icon": r.get("icon", "💼"),
+                    "category": r.get("category", ""),
+                }
+                for r in top_roles
+            ],
+            "ai_suggestion": suggestion,
+            "resume_score": r_score["total"],
+            "scored_at": timezone.now().isoformat(),
+        }
+        scores_col().insert_one(score_doc)
+        return redirect(reverse('scoring:analyze', kwargs={'resume_id': resume_id}))
+
     github_data = None
     github_user = request.GET.get("github", "").strip()
     if github_user:
@@ -43,30 +71,6 @@ def analyze(request, resume_id):
             github_data = github_analysis(github_user)
         except Exception:
             github_data = {"error": "GitHub fetch failed."}
-
-    # Save score record (scoped to this user)
-    score_doc = {
-        "score_id": str(uuid.uuid4()),
-        "user_id": request.user.id,
-        "resume_id": resume_id,
-        "best_role": best_role["title"],
-        "match_percentage": best_role["match_percentage"],
-        "matched_skills": best_role["matched_skills"],
-        "missing_skills": best_role["missing_skills"],
-        "top_roles": [
-            {
-                "title": r["title"],
-                "match_percentage": r["match_percentage"],
-                "icon": r.get("icon", "💼"),
-                "category": r.get("category", ""),
-            }
-            for r in top_roles
-        ],
-        "ai_suggestion": suggestion,
-        "resume_score": r_score["total"],
-        "scored_at": datetime.utcnow().isoformat(),
-    }
-    scores_col().insert_one(score_doc)
 
     # Chart data
     top_role_labels = json.dumps([r["title"] for r in top_roles])
