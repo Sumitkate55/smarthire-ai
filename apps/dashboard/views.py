@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from core.services.mongodb import resumes_col, scores_col
+from core.services.resume_analyzer import github_analysis
 
 
 @login_required
@@ -31,3 +32,21 @@ def home(request):
         "avg_score": avg_score,
     }
     return render(request, 'dashboard/home.html', context)
+
+
+@login_required
+def github_lookup(request):
+    github_user = request.GET.get('github', '').strip()
+    github_data = None
+    if github_user:
+        try:
+            github_data = github_analysis(github_user)
+        except Exception:
+            github_data = {"error": "GitHub profile fetch failed."}
+
+    context = {
+        "github_user": github_user,
+        "github_data": github_data,
+    }
+    return render(request, 'dashboard/github_lookup.html', context)
+

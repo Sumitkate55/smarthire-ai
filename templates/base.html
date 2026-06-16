@@ -51,6 +51,12 @@
         <span>Score History</span>
       </a>
 
+      <a href="{% url 'dashboard:github_lookup' %}"
+         class="sh-nav-link {% if request.resolver_match.namespace == 'dashboard' and request.resolver_match.url_name == 'github_lookup' %}active{% endif %}">
+        <span class="sh-nav-icon"><i class="bi bi-github"></i></span>
+        <span>GitHub Finder</span>
+      </a>
+
       <div class="sh-nav-section" style="margin-top:16px">Account</div>
 
       {% if user.is_authenticated %}
